@@ -4,7 +4,7 @@ const config = {
     user: "root",
     password: "********",
     database: "tiny-blog"
-
-  }
+  },
+  jwtkey: "******"
 }
 export default config;

@@ -13,7 +13,7 @@ class Cache {
   }
 
   getCache(key) {
-    if (this.cache(key) && (!this.cache[key].timeout || this.cache[key].timeout > Date.now())) {
+    if (this.cache[key] && (!this.cache[key].timeout || this.cache[key].timeout > Date.now())) {
       return this.cache[key].value
     }
     this.clearCache(key)
