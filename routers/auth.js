@@ -1,8 +1,8 @@
 import express from "express";
-import { registerController } from "../controllers/auth.js";
+import { getVerifyCodeController } from "../controllers/auth.js";
 
 const authRouter = express.Router();
 
-authRouter.get('/register', registerController)
+authRouter.get('/getVerifyCode', getVerifyCodeController)
 
 export default authRouter;
