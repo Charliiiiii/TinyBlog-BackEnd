@@ -97,11 +97,13 @@ export const loginController = (req, res) => {
     let userInfo = result[0]
     const { password, ...other } = userInfo;
 
-    const token = jwt.sign(other, config.jwtkey)
+    const token = jwt.sign({
+      id: userInfo.id
+    }, config.jwtkey)
 
     res
       .cookie("access_token", token, {
-        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
       })
       .status(200)
       .json({
@@ -112,4 +114,69 @@ export const loginController = (req, res) => {
   })
 
 }
+
+export const getUserInfoController = (req, res) => {
+  console.log(req)
+  let token = req.cookies.access_token;
+
+  if (!token) {
+    res.json({
+      code: 400,
+      msg: "请登录后重试"
+    })
+    return;
+  }
+
+  jwt.verify(token, config.jwtkey, (err, userInfo) => {
+    if (err) {
+      res.json({
+        code: 400,
+        msg: "Token无效"
+      })
+      return;
+    }
+    let id = userInfo.id;
+
+    const userInfoSql = "SELECT * FROM users WHERE id = ?";
+
+    db.query(userInfoSql, [id], (err, result) => {
+
+      if (err) {
+        console.log(err)
+        res.json({
+          code: 500,
+          msg: "查询失败"
+        })
+        return;
+      }
+
+      if (!result) {
+        res.json({
+          code: 400,
+          msg: "用户不存在！"
+        })
+        return;
+      }
+      let userInfo = result[0]
+      const { password, ...otherInfo } = userInfo;
+      res.json({
+        code: 200,
+        msg: "查询成功！",
+        data: otherInfo
+      })
+    })
+
+  })
+
+}
+
+export const userLogoutController = (req, res) => {
+  res.clearCookie("access_token", {
+    sameSite: "none",
+    secure: true
+  }).status(200).json({
+    code: 200,
+    msg: "用户已退出",
+  })
+};
 
