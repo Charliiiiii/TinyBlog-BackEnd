@@ -5,6 +5,7 @@ const config = {
     password: "********",
     database: "tiny-blog"
   },
-  jwtkey: "******"
+  jwtkey: "******",
+  uploadFileRoute: "storage/uploads"
 }
 export default config;

@@ -1,6 +1,6 @@
 #project
 config.js
-
+storage/
 # Logs
 logs
 *.log
