@@ -116,7 +116,6 @@ export const loginController = (req, res) => {
 }
 
 export const getUserInfoController = (req, res) => {
-  console.log(req)
   let token = req.cookies.access_token;
 
   if (!token) {

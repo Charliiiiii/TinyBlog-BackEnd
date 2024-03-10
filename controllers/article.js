@@ -1,5 +1,8 @@
 import { verifyTokenAndGetUserId } from "./common.js"
 import db from "../tools/db.js"
+import jwt from "jsonwebtoken";
+import config from "../config.js"
+import { getUserInfoController } from "./auth.js";
 
 export const postAriticleController = async (req, res) => {
 
@@ -50,7 +53,7 @@ export const postAriticleController = async (req, res) => {
       if (id) {
         const updateSql = "Update articles SET title = ?, content = ?, cover_url = ?, category = ?, description = ?, uid = ?  WHERE id = ?"
 
-        db.query(updateSql, [title, content, cover_url, category, descripition, uid], (err, result) => {
+        db.query(updateSql, [title, content, cover_url, category, descripition, uid, id], (err, result) => {
           if (err) {
             console.log(err)
             reject("数据库错误！")
@@ -65,7 +68,6 @@ export const postAriticleController = async (req, res) => {
             console.log(err)
             reject("数据库错误！")
           }
-          console.log(result)
           resolve(result.insertId)
         })
       }
@@ -84,4 +86,109 @@ export const postAriticleController = async (req, res) => {
       msg: err
     })
   })
+}
+
+export const getAriticleListController = (req, res) => {
+
+  let category = req.query.category;
+  let searchSql = "SELECT * FROM articles";
+  let params = []
+  if (category) {
+    searchSql += " WHERE category = ?"
+    params.push(category)
+  }
+  db.query(searchSql, params, (err, result) => {
+    if (err) {
+      res.json({
+        code: 500,
+        msg: "查询失败"
+      })
+      return
+    }
+    res.json(
+      {
+        code: 200,
+        msg: "查询成功",
+        data: result
+      }
+    )
+  })
+}
+
+
+export const getAriticleController = (req, res) => {
+  console.log(req)
+  let token = req.cookies.access_token
+  jwt.verify(token, config.jwtkey, (err, result) => {
+    if (err) {
+      res.json({
+        code: 500,
+        msg: "查询失败"
+      })
+    }
+    let uid = result.id;
+
+    const getUsersArticleSql = "SELECT a.title, a.id, a.content, a.cover_url, a.category, u.username FROM articles a JOIN users u ON a.uid = u.id WHERE a.uid = ?";
+
+    db.query(getUsersArticleSql, [uid], (err, result) => {
+      if (err) {
+        res.json({
+          code: 500,
+          msg: "数据库查询失败"
+        })
+      }
+      res.json({
+        code: 200,
+        msg: "查询成功",
+        data: result
+      })
+    })
+  })
+
+
+
+}
+
+export const updateArticleController = (req, res) => {
+  const id = req.params.id;
+  console.log(id)
+  const getArticleInfoSql = "SELECT * FROM articles WHERE id = ?"
+  db.query(getArticleInfoSql, [id], (err, result) => {
+    if (err) {
+      res.json({
+        code: 500,
+        msg: "查询失败！"
+      })
+    }
+    res.json({
+      code: 200,
+      msg: "文章信息查询成功！",
+      data: result
+    })
+  })
+
+
+}
+
+export const deleteArticleController = (req, res) => {
+  const articleId = req.params.articleId;
+
+  const deleteArticleSql = "DELETE FROM articles WHERE id = ?"
+
+  db.query(deleteArticleSql, [articleId], (err, result) => {
+    if (err) {
+      res.json({
+        code: 500,
+        msg: "删除失败"
+      })
+    }
+    res.json({
+      code: 200,
+      msg: "删除成功！"
+    })
+  })
+}
+
+export const getCayegoryAriticle = (req, res) => {
+
 }

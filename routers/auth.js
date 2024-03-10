@@ -7,5 +7,4 @@ authRouter.get('/getVerifyCode', getVerifyCodeController)
 authRouter.post('/login', loginController)
 authRouter.get('/getUserInfo', getUserInfoController)
 authRouter.post('/userLogout', userLogoutController)
-
 export default authRouter;
