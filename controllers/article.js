@@ -115,9 +115,7 @@ export const getAriticleListController = (req, res) => {
   })
 }
 
-
 export const getAriticleController = (req, res) => {
-  console.log(req)
   let token = req.cookies.access_token
   jwt.verify(token, config.jwtkey, (err, result) => {
     if (err) {
@@ -127,9 +125,7 @@ export const getAriticleController = (req, res) => {
       })
     }
     let uid = result.id;
-
     const getUsersArticleSql = "SELECT a.title, a.id, a.content, a.cover_url, a.category, u.username FROM articles a JOIN users u ON a.uid = u.id WHERE a.uid = ?";
-
     db.query(getUsersArticleSql, [uid], (err, result) => {
       if (err) {
         res.json({
@@ -143,22 +139,26 @@ export const getAriticleController = (req, res) => {
         data: result
       })
     })
+
   })
-
-
-
 }
 
-export const updateArticleController = (req, res) => {
+export const updateArticleController = async (req, res) => {
+  console.log(req)
+  const uid = await verifyTokenAndGetUserId(req, res)
+  if (!uid) {
+    return;
+  }
   const id = req.params.id;
-  console.log(id)
-  const getArticleInfoSql = "SELECT * FROM articles WHERE id = ?"
+  const getArticleInfoSql = "SELECT articles.*, users.username FROM articles JOIN users ON users.id = articles.uid WHERE articles.id = ?"
   db.query(getArticleInfoSql, [id], (err, result) => {
     if (err) {
+      console.log(err)
       res.json({
         code: 500,
         msg: "查询失败！"
       })
+      return;
     }
     res.json({
       code: 200,
@@ -166,8 +166,6 @@ export const updateArticleController = (req, res) => {
       data: result
     })
   })
-
-
 }
 
 export const deleteArticleController = (req, res) => {
@@ -189,6 +187,24 @@ export const deleteArticleController = (req, res) => {
   })
 }
 
-export const getCayegoryAriticle = (req, res) => {
+export const getByKeywordController = (req, res) => {
+  let keyword = req.params.keyword;
+  const getByKeywordSql = "SELECT * FROM articles WHERE title LIKE CONCAT('%', ?, '%')";
 
+  db.query(getByKeywordSql, [keyword], (err, result) => {
+    if (err) {
+      res.json({
+        code: 500,
+        msg: "查询失败"
+      })
+      console.log(err)
+      return;
+    }
+    res.json({
+      code: 200,
+      msg: "查询成功",
+      data: result
+
+    })
+  })
 }
