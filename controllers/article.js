@@ -89,16 +89,22 @@ export const postAriticleController = async (req, res) => {
 }
 
 export const getAriticleListController = (req, res) => {
+  let page = parseInt(req.query?.page) || 1;
+  let pageSize = parseInt(req.query?.pageSize) || 10;
 
   let category = req.query.category;
   let searchSql = "SELECT * FROM articles";
   let params = []
   if (category) {
-    searchSql += " WHERE category = ?"
+    searchSql += " WHERE category = ? "
     params.push(category)
   }
+  searchSql += " LIMIT ?, ?"
+  params.push((page - 1) * pageSize)
+  params.push(pageSize)
   db.query(searchSql, params, (err, result) => {
     if (err) {
+      console.log(err)
       res.json({
         code: 500,
         msg: "查询失败"
