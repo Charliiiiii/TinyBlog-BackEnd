@@ -151,10 +151,10 @@ export const getAriticleController = (req, res) => {
 
 export const updateArticleController = async (req, res) => {
   console.log(req)
-  const uid = await verifyTokenAndGetUserId(req, res)
-  if (!uid) {
-    return;
-  }
+  // const uid = await verifyTokenAndGetUserId(req, res)
+  // if (!uid) {
+  //   return;
+  // }
   const id = req.params.id;
   const getArticleInfoSql = "SELECT articles.*, users.username FROM articles JOIN users ON users.id = articles.uid WHERE articles.id = ?"
   db.query(getArticleInfoSql, [id], (err, result) => {

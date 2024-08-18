@@ -9,3 +9,4 @@ CREATE TABLE `newblog`.`articles`  (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_uid` FOREIGN KEY (`uid`) REFERENCES `newblog`.`users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
+

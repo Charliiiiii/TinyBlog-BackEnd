@@ -79,6 +79,7 @@ export const loginController = (req, res) => {
   new Promise((resolve, reject) => {
     queryFunc(phone, resolve, reject);
   }).then((result) => {
+    //先处理用户是否存在 ： 不存在？插入并获取用户信息 ： 存在？直接返回用户信息
     //用户不存在
     if (result.length === 0) {
       return new Promise((resolve, reject) => {
@@ -96,14 +97,15 @@ export const loginController = (req, res) => {
   }).then((result) => {
     let userInfo = result[0]
     const { password, ...other } = userInfo;
-
+    //签发jwt，接受两个参数：一个是数据，一个是密钥
     const token = jwt.sign({
       id: userInfo.id
     }, config.jwtkey)
-
     res
+      //返回设置的cookeie并设置了过期时间expires  
       .cookie("access_token", token, {
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        httpOnly: true
       })
       .status(200)
       .json({
@@ -117,7 +119,6 @@ export const loginController = (req, res) => {
 
 export const getUserInfoController = (req, res) => {
   let token = req.cookies.access_token;
-
   if (!token) {
     res.json({
       code: 400,
